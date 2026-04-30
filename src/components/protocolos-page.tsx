@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Eye, MapPin, AlertCircle, ClipboardList, ClipboardPlus, Clipboard, Calendar, User, Hash } from "lucide-react";
+import { Search, Eye, MapPin, AlertCircle, ClipboardList, ClipboardPlus, Clipboard, Sun, Moon } from "lucide-react";
 import { SlidePanel } from "@/components/slide-panel";
 import { ProtocoloDetail } from "@/components/protocolo-detail";
 import { ProtocoloDetailQT } from "@/components/protocolo-detail-qt";
 import { ProtocoloDetailEA } from "@/components/protocolo-detail-ea";
 import { ProtocoloDetailNS } from "@/components/protocolo-detail-ns";
+import { useTheme } from "@/lib/theme-context";
 
 interface Protocolo {
   id: string;
@@ -48,6 +49,7 @@ const tabCounts: Record<string, number> = {
 export function ProtocolosPage() {
   const [activeTab, setActiveTab] = useState("Protocolos");
   const [selectedProtocolo, setSelectedProtocolo] = useState<Protocolo | null>(null);
+  const { isDark, toggleTheme } = useTheme();
 
   return (
     <div className="flex flex-col h-full">
@@ -57,21 +59,29 @@ export function ProtocolosPage() {
           <span className="text-2xl">👋</span>
           <div className="flex-1">
             <div className="flex items-center gap-3">
-              <h1 className="text-xl font-bold text-white">
+              <h1 className={`text-xl font-bold ${isDark ? "text-white" : "text-gray-800"}`}>
                 Bem-vindo(a), Administrador!
               </h1>
               <button className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-1.5 text-sm font-medium text-white hover:from-indigo-600 hover:to-purple-700 transition-colors">
                 <span className="text-xs">✦</span> Perguntar à IA
               </button>
             </div>
-            <p className="mt-0.5 text-sm text-gray-400">
+            <p className={`mt-0.5 text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}>
               Acompanhe os casos que possuem pendência e precisam de atenção
             </p>
           </div>
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className={`rounded-lg p-2 transition-colors ${isDark ? "text-gray-400 hover:bg-white/10 hover:text-gray-200" : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"}`}
+            aria-label={isDark ? "Mudar para tema claro" : "Mudar para tema escuro"}
+          >
+            {isDark ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
         </div>
 
         {/* Tabs */}
-        <nav className="mt-4 flex gap-6 border-b border-white/10">
+        <nav className={`mt-4 flex gap-6 border-b ${isDark ? "border-white/10" : "border-gray-200"}`}>
           {tabs.map((tab) => (
             <button
               key={tab}
@@ -79,12 +89,12 @@ export function ProtocolosPage() {
               className={`flex items-center gap-1.5 pb-2 text-sm font-medium transition-colors ${
                 activeTab === tab
                   ? "border-b-2 border-[#26B99D] text-[#26B99D]"
-                  : "text-gray-400 hover:text-gray-200"
+                  : isDark ? "text-gray-400 hover:text-gray-200" : "text-gray-500 hover:text-gray-700"
               }`}
             >
               {tabIcons[tab]}
               {tab}
-              <span className="ml-1 inline-flex items-center justify-center rounded-full bg-white/10 px-1.5 py-0.5 text-xs font-medium text-gray-300 min-w-[20px]">
+              <span className={`ml-1 inline-flex items-center justify-center rounded-full px-1.5 py-0.5 text-xs font-medium min-w-[20px] ${isDark ? "bg-white/10 text-gray-300" : "bg-gray-100 text-gray-600"}`}>
                 {tabCounts[tab]}
               </span>
             </button>
@@ -94,18 +104,18 @@ export function ProtocolosPage() {
 
       {/* Content */}
       <div className="flex-1 overflow-auto px-6 py-4">
-        <div className="rounded-xl border border-white/10 bg-transparent">
+        <div className={`rounded-xl border ${isDark ? "border-white/10 bg-transparent" : "border-gray-200 bg-white"}`}>
           {/* Toolbar */}
-          <div className="flex items-center justify-between gap-4 border-b border-white/10 px-4 py-3">
-            <h2 className="text-base font-semibold text-white">{activeTab}</h2>
+          <div className={`flex items-center justify-between gap-4 border-b px-4 py-3 ${isDark ? "border-white/10" : "border-gray-100"}`}>
+            <h2 className={`text-base font-semibold ${isDark ? "text-white" : "text-gray-800"}`}>{activeTab}</h2>
           </div>
-          <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3">
+          <div className={`flex items-center gap-3 border-b px-4 py-3 ${isDark ? "border-white/10" : "border-gray-100"}`}>
             <div className="relative flex-1">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+              <Search size={16} className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-gray-500" : "text-gray-400"}`} />
               <input
                 type="text"
                 placeholder="Buscar por ID, cliente..."
-                className="w-full rounded-lg border border-white/10 bg-[#0b1120] py-2 pl-9 pr-4 text-sm text-gray-200 placeholder:text-gray-500 focus:border-[#26B99D] focus:outline-none focus:ring-1 focus:ring-[#26B99D]"
+                className={`w-full rounded-lg border py-2 pl-9 pr-4 text-sm focus:border-[#26B99D] focus:outline-none focus:ring-1 focus:ring-[#26B99D] ${isDark ? "border-white/10 bg-[#0b1120] text-gray-200 placeholder:text-gray-500" : "border-gray-200 bg-white text-gray-600 placeholder:text-gray-400"}`}
               />
             </div>
             <FilterButton label="Data" options={["Hoje", "Últimos 7 dias", "Últimos 30 dias", "Este mês", "Mês passado", "Personalizado"]} />
@@ -126,108 +136,93 @@ export function ProtocolosPage() {
 
           {/* Table */}
           <div className="overflow-x-auto">
-            <table className="w-full text-sm border-separate border-spacing-0">
+            <table className="w-full text-sm">
               <thead>
-                <tr className="text-left">
-                  <th className="sticky top-0 z-10 bg-[#0b1120]/95 backdrop-blur-sm px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-white/10">
-                    <div className="flex items-center gap-1.5">
-                      <Hash size={12} />
-                      Protocolo
-                    </div>
-                  </th>
-                  <th className="sticky top-0 z-10 bg-[#0b1120]/95 backdrop-blur-sm px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-white/10">
-                    <div className="flex items-center gap-1.5">
-                      <User size={12} />
-                      Cliente
-                    </div>
-                  </th>
-                  <th className="sticky top-0 z-10 bg-[#0b1120]/95 backdrop-blur-sm px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-white/10">Status</th>
-                  <th className="sticky top-0 z-10 bg-[#0b1120]/95 backdrop-blur-sm px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-white/10">
-                    <div className="flex items-center gap-1.5">
-                      <MapPin size={12} />
-                      Território
-                    </div>
-                  </th>
-                  <th className="sticky top-0 z-10 bg-[#0b1120]/95 backdrop-blur-sm px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-white/10">
-                    <div className="flex items-center gap-1.5">
-                      <Calendar size={12} />
-                      Criado em
-                    </div>
-                  </th>
-                  <th className="sticky top-0 z-10 bg-[#0b1120]/95 backdrop-blur-sm px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-white/10">Criado por</th>
-                  <th className="sticky top-0 z-10 bg-[#0b1120]/95 backdrop-blur-sm px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-white/10 text-right">Ações</th>
+                <tr className={`border-b text-left ${isDark ? "border-white/10 text-gray-400" : "border-gray-100 text-gray-500"}`}>
+                  <th className="px-4 py-3 font-medium">Protocolo ↓</th>
+                  <th className="px-4 py-3 font-medium">Cliente</th>
+                  <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">Território</th>
+                  <th className="px-4 py-3 font-medium">Criado em ↕</th>
+                  <th className="px-4 py-3 font-medium">Criado por</th>
+                  <th className="px-4 py-3 font-medium text-right">Ações</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody>
                 {protocolos.map((p, i) => {
-                  const displayId = activeTab === "Queixa Técnica"
-                    ? `${p.id}-QT${String(i + 1).padStart(3, "0")}`
-                    : activeTab === "Evento Adverso"
-                    ? `${p.id}-EA${String(i + 1).padStart(3, "0")}`
-                    : activeTab === "Notificação de Seguimento"
-                    ? `${p.id}-NS${String(i + 1).padStart(4, "0")}`
-                    : p.id;
-
-                  const displayStatus = activeTab === "Queixa Técnica"
-                    ? (i % 2 === 0 ? "Revisão" : "Retornado")
-                    : activeTab === "Evento Adverso"
-                    ? (i % 2 === 0 ? "Revisão" : "Retornado")
-                    : activeTab === "Notificação de Seguimento"
-                    ? "Aguardando Aprovação"
-                    : p.status;
-
-                  const statusStyles: Record<string, { dot: string; badge: string }> = {
-                    "Aberto": { dot: "bg-emerald-400", badge: "bg-emerald-400/10 text-emerald-400 ring-1 ring-inset ring-emerald-400/20" },
-                    "Em andamento": { dot: "bg-amber-400", badge: "bg-amber-400/10 text-amber-400 ring-1 ring-inset ring-amber-400/20" },
-                    "Revisão": { dot: "bg-purple-400", badge: "bg-purple-400/10 text-purple-400 ring-1 ring-inset ring-purple-400/20" },
-                    "Retornado": { dot: "bg-yellow-400", badge: "bg-yellow-400/10 text-yellow-400 ring-1 ring-inset ring-yellow-400/20" },
-                    "Aguardando Aprovação": { dot: "bg-orange-400", badge: "bg-orange-400/10 text-orange-400 ring-1 ring-inset ring-orange-400/20" },
-                  };
-
-                  const style = statusStyles[displayStatus] || { dot: "bg-gray-400", badge: "bg-white/5 text-gray-400 ring-1 ring-inset ring-gray-500/20" };
-
                   return (
                     <tr
                       key={`${p.id}-${i}`}
                       onClick={() => setSelectedProtocolo(p)}
-                      className="group cursor-pointer transition-all duration-200 hover:bg-gradient-to-r hover:from-white/[0.03] hover:to-transparent"
+                      className={`border-b transition-colors cursor-pointer ${isDark ? "border-white/5 hover:bg-white/5" : "border-gray-50 hover:bg-gray-100"}`}
                     >
-                      <td className="px-5 py-4">
-                        <span className="font-mono text-sm font-semibold text-white group-hover:text-[#26B99D] transition-colors">
-                          {displayId}
-                        </span>
+                      <td className={`px-4 py-3 font-medium ${isDark ? "text-gray-200" : "text-gray-800"}`}>
+                        {activeTab === "Queixa Técnica"
+                          ? `${p.id}-QT${String(i + 1).padStart(3, "0")}`
+                          : activeTab === "Evento Adverso"
+                          ? `${p.id}-EA${String(i + 1).padStart(3, "0")}`
+                          : activeTab === "Notificação de Seguimento"
+                          ? `${p.id}-NS${String(i + 1).padStart(4, "0")}`
+                          : p.id}
                       </td>
-                      <td className="px-5 py-4">
-                        <span className="text-sm text-gray-300">{p.cliente}</span>
-                      </td>
-                      <td className="px-5 py-4">
-                        <div className="flex items-center gap-2">
-                          <span className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium ${style.badge}`}>
-                            <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
-                            {displayStatus}
-                          </span>
+                      <td className={`px-4 py-3 ${isDark ? "text-gray-400" : "text-gray-600"}`}>{p.cliente}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-1.5">
+                          {(() => {
+                            const displayStatus = activeTab === "Queixa Técnica"
+                              ? (i % 2 === 0 ? "Revisão" : "Retornado")
+                              : activeTab === "Evento Adverso"
+                              ? (i % 2 === 0 ? "Revisão" : "Retornado")
+                              : activeTab === "Notificação de Seguimento"
+                              ? "Aguardando Aprovação"
+                              : p.status;
+                            const statusColor = isDark
+                              ? (displayStatus === "Aberto"
+                                ? "bg-[#F0FDF4]/10 border border-[#4CDE81]/50 text-[#4CDE81]"
+                                : displayStatus === "Em andamento"
+                                ? "bg-[#FFFBEB]/10 border border-[#F59E0B]/50 text-[#F59E0B]"
+                                : displayStatus === "Revisão"
+                                ? "bg-[#FAF5FF]/10 border border-[#C185FC]/50 text-[#C185FC]"
+                                : displayStatus === "Retornado"
+                                ? "bg-[#FEFCE8]/10 border border-[#FACC2C]/50 text-[#FACC2C]"
+                                : displayStatus === "Aguardando Aprovação"
+                                ? "bg-[#FEFCE8]/10 border border-[#FACC2C]/50 text-[#FACC2C]"
+                                : "bg-white/5 border border-gray-500 text-gray-400")
+                              : (displayStatus === "Aberto"
+                                ? "bg-[#F0FDF4] border border-[#4CDE81] text-[#166534]"
+                                : displayStatus === "Em andamento"
+                                ? "bg-[#FFFBEB] border border-[#F59E0B] text-[#92400E]"
+                                : displayStatus === "Revisão"
+                                ? "bg-[#FAF5FF] border border-[#C185FC] text-[#6B21A8]"
+                                : displayStatus === "Retornado"
+                                ? "bg-[#FEFCE8] border border-[#FACC2C] text-[#854D0E]"
+                                : displayStatus === "Aguardando Aprovação"
+                                ? "bg-[#FEFCE8] border border-[#FACC2C] text-[#854D0E]"
+                                : "bg-gray-100 border border-gray-400 text-gray-700");
+                            return (
+                              <span className={`inline-flex rounded-full px-3 py-0.5 text-xs font-medium ${statusColor}`}>
+                                {displayStatus}
+                              </span>
+                            );
+                          })()}
                           {p.justificativa && activeTab === "Protocolos" && (
-                            <span title="Justificativa aplicada" className="flex items-center">
-                              <AlertCircle size={14} className="text-amber-500 animate-pulse" />
+                            <span title="Justificativa aplicada">
+                              <AlertCircle size={14} className="text-amber-500" />
                             </span>
                           )}
                         </div>
                       </td>
-                      <td className="px-5 py-4">
-                        <span className="inline-flex items-center gap-1.5 rounded-md bg-white/5 px-2.5 py-1 text-xs font-medium text-gray-400 ring-1 ring-inset ring-white/10">
-                          <MapPin size={11} className="text-gray-500" />
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex items-center gap-1 rounded-full px-3 py-0.5 text-xs font-medium ${isDark ? "bg-white/5 border border-white/10 text-gray-300" : "bg-[#F1F5F9] border border-[#91A2BA] text-gray-700"}`}>
+                          <MapPin size={12} />
                           {p.territorio}
                         </span>
                       </td>
-                      <td className="px-5 py-4">
-                        <span className="text-sm tabular-nums text-gray-400">{p.data}</span>
-                      </td>
-                      <td className="px-5 py-4">
-                        <span className="text-sm text-gray-400">{p.criadoPor}</span>
-                      </td>
-                      <td className="px-5 py-4">
+                      <td className={`px-4 py-3 ${isDark ? "text-gray-400" : "text-gray-600"}`}>{p.data}</td>
+                      <td className={`px-4 py-3 ${isDark ? "text-gray-400" : "text-gray-600"}`}>{p.criadoPor}</td>
+                      <td className="px-4 py-3">
                         <div className="flex items-center justify-end">
-                          <button className="rounded-lg p-2 text-gray-600 opacity-0 group-hover:opacity-100 hover:bg-[#26B99D]/10 hover:text-[#26B99D] transition-all duration-200">
+                          <button className={`rounded-md p-1.5 transition-colors ${isDark ? "text-gray-500 hover:bg-white/10 hover:text-gray-300" : "text-gray-400 hover:bg-gray-200 hover:text-gray-600"}`}>
                             <Eye size={16} />
                           </button>
                         </div>
@@ -237,24 +232,6 @@ export function ProtocolosPage() {
                 })}
               </tbody>
             </table>
-          </div>
-
-          {/* Footer */}
-          <div className="flex items-center justify-between border-t border-white/10 px-5 py-3">
-            <span className="text-xs text-gray-500">
-              Exibindo {protocolos.length} de {protocolos.length} registros
-            </span>
-            <div className="flex items-center gap-1">
-              <button className="rounded-md px-3 py-1.5 text-xs font-medium text-gray-500 hover:bg-white/5 hover:text-gray-300 transition-colors">
-                Anterior
-              </button>
-              <button className="rounded-md bg-[#26B99D]/10 px-3 py-1.5 text-xs font-medium text-[#26B99D] ring-1 ring-inset ring-[#26B99D]/20">
-                1
-              </button>
-              <button className="rounded-md px-3 py-1.5 text-xs font-medium text-gray-500 hover:bg-white/5 hover:text-gray-300 transition-colors">
-                Próximo
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -314,6 +291,7 @@ export function ProtocolosPage() {
 function FilterButton({ label, options, multiSelect }: { label: string; options?: string[]; multiSelect?: boolean }) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
+  const { isDark } = useTheme();
 
   const handleSelect = (opt: string) => {
     if (multiSelect) {
@@ -333,24 +311,24 @@ function FilterButton({ label, options, multiSelect }: { label: string; options?
     <div className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1 rounded-lg border border-white/10 px-3 py-2 text-sm text-gray-300 hover:bg-white/5 transition-colors"
+        className={`flex items-center gap-1 rounded-lg border px-3 py-2 text-sm transition-colors ${isDark ? "border-white/10 text-gray-300 hover:bg-white/5" : "border-gray-200 text-gray-600 hover:bg-gray-50"}`}
       >
         <span>{displayLabel}</span>
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="text-gray-500">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className={isDark ? "text-gray-500" : "text-gray-400"}>
           <path d="M3 5L6 8L9 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
       {open && options && (
-        <div className="absolute right-0 top-full z-20 mt-1 min-w-[160px] rounded-lg border border-white/10 bg-[#0b1120] py-1 shadow-lg">
+        <div className={`absolute right-0 top-full z-20 mt-1 min-w-[160px] rounded-lg border py-1 shadow-lg ${isDark ? "border-white/10 bg-[#0b1120]" : "border-gray-200 bg-white"}`}>
           {options.map((opt) => (
             <button
               key={opt}
               onClick={() => handleSelect(opt)}
-              className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-300 hover:bg-white/5"
+              className={`flex w-full items-center gap-2 px-4 py-2 text-left text-sm ${isDark ? "text-gray-300 hover:bg-white/5" : "text-gray-600 hover:bg-gray-50"}`}
             >
               {multiSelect && (
                 <span className={`flex h-4 w-4 items-center justify-center rounded border ${
-                  selected.includes(opt) ? "border-[#26B99D] bg-[#26B99D] text-white" : "border-gray-600"
+                  selected.includes(opt) ? "border-[#26B99D] bg-[#26B99D] text-white" : isDark ? "border-gray-600" : "border-gray-300"
                 }`}>
                   {selected.includes(opt) && (
                     <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
@@ -363,7 +341,7 @@ function FilterButton({ label, options, multiSelect }: { label: string; options?
             </button>
           ))}
           {multiSelect && (
-            <div className="border-t border-white/10 mt-1 pt-1 px-4 py-2">
+            <div className={`border-t mt-1 pt-1 px-4 py-2 ${isDark ? "border-white/10" : "border-gray-100"}`}>
               <button
                 onClick={() => setOpen(false)}
                 className="w-full rounded-md bg-[#26B99D] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#219b84] transition-colors"

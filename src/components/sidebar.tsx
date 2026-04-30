@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useTheme } from "@/lib/theme-context";
 import {
   Home,
   LayoutGrid,
@@ -42,24 +43,30 @@ interface SidebarProps {
 
 export function Sidebar({ activePage, onNavigate }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
+  const { isDark } = useTheme();
 
   return (
     <aside
       className={cn(
-        "relative flex h-screen flex-col bg-[#0b1120] border-r border-white/10 transition-all duration-300",
+        "relative flex h-screen flex-col transition-all duration-300",
+        isDark ? "bg-[#0b1120] border-r border-white/10" : "bg-white border-r border-gray-200",
         collapsed ? "w-[72px]" : "w-[280px]"
       )}
     >
       {/* Toggle button */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-8 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-white/10 bg-[#0b1120] shadow-sm hover:bg-[rgba(18,30,50,0.6)] transition-colors"
+        className={cn(
+          "absolute -right-3 top-8 z-10 flex h-6 w-6 items-center justify-center rounded-full shadow-sm transition-colors",
+          isDark ? "border border-white/10 bg-[#0b1120] hover:bg-[rgba(18,30,50,0.6)]" : "border border-gray-200 bg-white hover:bg-gray-50"
+        )}
         aria-label={collapsed ? "Expandir menu" : "Recolher menu"}
       >
         <ChevronLeft
           size={14}
           className={cn(
-            "text-gray-400 transition-transform duration-300",
+            "transition-transform duration-300",
+            isDark ? "text-gray-400" : "text-gray-500",
             collapsed && "rotate-180"
           )}
         />
@@ -82,10 +89,10 @@ export function Sidebar({ activePage, onNavigate }: SidebarProps) {
           </svg>
           {!collapsed && (
             <div className="flex flex-col leading-none">
-              <span className="text-lg font-bold tracking-wider text-white">
+              <span className={cn("text-lg font-bold tracking-wider", isDark ? "text-white" : "text-gray-800")}>
                 SIN
               </span>
-              <span className="text-[10px] font-semibold tracking-[0.2em] text-gray-400 uppercase">
+              <span className={cn("text-[10px] font-semibold tracking-[0.2em] uppercase", isDark ? "text-gray-400" : "text-gray-500")}>
                 Solution
               </span>
             </div>
@@ -108,10 +115,12 @@ export function Sidebar({ activePage, onNavigate }: SidebarProps) {
                     collapsed && "justify-center px-0",
                     isActive
                       ? "bg-[#26B99D] text-white shadow-md"
-                      : "text-gray-400 hover:bg-[rgba(18,30,50,0.6)] hover:text-gray-200"
+                      : isDark
+                      ? "text-gray-400 hover:bg-[rgba(18,30,50,0.6)] hover:text-gray-200"
+                      : "text-gray-600 hover:bg-gray-100"
                   )}
                 >
-                  <span className={cn("shrink-0", isActive ? "text-white" : "text-gray-500")}>
+                  <span className={cn("shrink-0", isActive ? "text-white" : isDark ? "text-gray-500" : "text-gray-500")}>
                     {item.icon}
                   </span>
                   {!collapsed && (
@@ -120,7 +129,7 @@ export function Sidebar({ activePage, onNavigate }: SidebarProps) {
                       {item.hasSubmenu && (
                         <ChevronRight
                           size={16}
-                          className={isActive ? "text-white" : "text-gray-500"}
+                          className={isActive ? "text-white" : isDark ? "text-gray-500" : "text-gray-400"}
                         />
                       )}
                     </>
