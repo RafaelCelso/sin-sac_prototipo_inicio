@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Sidebar } from "@/components/sidebar";
 import { ProtocolosPage } from "@/components/protocolos-page";
+import { ImportacoesPage } from "@/components/importacoes-page";
 import { ThemeProvider, useTheme } from "@/lib/theme-context";
 
 function AppContent() {
@@ -15,6 +16,8 @@ function AppContent() {
       <main className={`flex-1 overflow-hidden ${isDark ? "bg-[#0b1120]" : "bg-gray-50"}`}>
         {activePage === "Início" ? (
           <ProtocolosPage />
+        ) : activePage === "Importações" ? (
+          <ImportacoesPage />
         ) : (
           <div className="flex h-full items-center justify-center">
             <p className={`text-lg ${isDark ? "text-gray-400" : "text-gray-500"}`}>{activePage}</p>

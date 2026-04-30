@@ -15,13 +15,21 @@ import {
   ShieldCheck,
   ChevronRight,
   ChevronLeft,
+  ChevronDown,
   Phone,
+  Upload,
 } from "lucide-react";
+
+interface SubMenuItem {
+  label: string;
+  icon: React.ReactNode;
+}
 
 interface MenuItem {
   label: string;
   icon: React.ReactNode;
   hasSubmenu?: boolean;
+  subItems?: SubMenuItem[];
 }
 
 const menuItems: MenuItem[] = [
@@ -32,7 +40,12 @@ const menuItems: MenuItem[] = [
   { label: "Agenda", icon: <CalendarDays size={20} /> },
   { label: "FAQ", icon: <BookOpen size={20} /> },
   { label: "Relatórios", icon: <BarChart3 size={20} /> },
-  { label: "Preferências", icon: <Settings size={20} />, hasSubmenu: true },
+  {
+    label: "Preferências",
+    icon: <Settings size={20} />,
+    hasSubmenu: true,
+    subItems: [{ label: "Importações", icon: <Upload size={16} /> }],
+  },
   { label: "Segurança", icon: <ShieldCheck size={20} />, hasSubmenu: true },
 ];
 
@@ -43,7 +56,14 @@ interface SidebarProps {
 
 export function Sidebar({ activePage, onNavigate }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
+  const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
   const { isDark } = useTheme();
+
+  const toggleSubmenu = (label: string) => {
+    setExpandedMenus((prev) =>
+      prev.includes(label) ? prev.filter((l) => l !== label) : [...prev, label]
+    );
+  };
 
   return (
     <aside
@@ -105,10 +125,18 @@ export function Sidebar({ activePage, onNavigate }: SidebarProps) {
         <ul className="flex flex-col gap-1">
           {menuItems.map((item) => {
             const isActive = activePage === item.label;
+            const isExpanded = expandedMenus.includes(item.label);
+            const hasSubItems = item.subItems && item.subItems.length > 0;
             return (
               <li key={item.label}>
                 <button
-                  onClick={() => onNavigate(item.label)}
+                  onClick={() => {
+                    if (hasSubItems && !collapsed) {
+                      toggleSubmenu(item.label);
+                    } else {
+                      onNavigate(item.label);
+                    }
+                  }}
                   title={collapsed ? item.label : undefined}
                   className={cn(
                     "flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-colors",
@@ -126,15 +154,52 @@ export function Sidebar({ activePage, onNavigate }: SidebarProps) {
                   {!collapsed && (
                     <>
                       <span className="flex-1 text-left">{item.label}</span>
-                      {item.hasSubmenu && (
+                      {hasSubItems ? (
+                        <ChevronDown
+                          size={16}
+                          className={cn(
+                            "transition-transform duration-200",
+                            isActive ? "text-white" : isDark ? "text-gray-500" : "text-gray-400",
+                            isExpanded && "rotate-180"
+                          )}
+                        />
+                      ) : item.hasSubmenu ? (
                         <ChevronRight
                           size={16}
                           className={isActive ? "text-white" : isDark ? "text-gray-500" : "text-gray-400"}
                         />
-                      )}
+                      ) : null}
                     </>
                   )}
                 </button>
+                {/* Submenu */}
+                {hasSubItems && isExpanded && !collapsed && (
+                  <ul className="ml-6 mt-1 flex flex-col gap-1">
+                    {item.subItems!.map((sub) => {
+                      const isSubActive = activePage === sub.label;
+                      return (
+                        <li key={sub.label}>
+                          <button
+                            onClick={() => onNavigate(sub.label)}
+                            className={cn(
+                              "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                              isSubActive
+                                ? "bg-[#26B99D]/10 text-[#26B99D]"
+                                : isDark
+                                ? "text-gray-400 hover:bg-[rgba(18,30,50,0.6)] hover:text-gray-200"
+                                : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                            )}
+                          >
+                            <span className={cn("shrink-0", isSubActive ? "text-[#26B99D]" : isDark ? "text-gray-500" : "text-gray-400")}>
+                              {sub.icon}
+                            </span>
+                            <span>{sub.label}</span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
               </li>
             );
           })}
