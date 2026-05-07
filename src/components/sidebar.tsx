@@ -19,6 +19,7 @@ import {
   Phone,
   Upload,
   SlidersHorizontal,
+  Package,
 } from "lucide-react";
 
 interface SubMenuItem {
@@ -46,6 +47,7 @@ const menuItems: MenuItem[] = [
     icon: <Settings size={20} />,
     hasSubmenu: true,
     subItems: [
+      { label: "Produto", icon: <Package size={16} /> },
       { label: "Importações", icon: <Upload size={16} /> },
       { label: "Parametrização", icon: <SlidersHorizontal size={16} /> },
     ],
