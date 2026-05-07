@@ -18,6 +18,7 @@ import {
   ChevronDown,
   Phone,
   Upload,
+  SlidersHorizontal,
 } from "lucide-react";
 
 interface SubMenuItem {
@@ -44,7 +45,10 @@ const menuItems: MenuItem[] = [
     label: "Preferências",
     icon: <Settings size={20} />,
     hasSubmenu: true,
-    subItems: [{ label: "Importações", icon: <Upload size={16} /> }],
+    subItems: [
+      { label: "Importações", icon: <Upload size={16} /> },
+      { label: "Parametrização", icon: <SlidersHorizontal size={16} /> },
+    ],
   },
   { label: "Segurança", icon: <ShieldCheck size={20} />, hasSubmenu: true },
 ];
@@ -95,18 +99,7 @@ export function Sidebar({ activePage, onNavigate }: SidebarProps) {
       {/* Logo */}
       <div className="flex items-center justify-center py-6">
         <div className="flex items-center gap-2">
-          <svg width="36" height="36" viewBox="0 0 36 36" fill="none" className="shrink-0">
-            <circle cx="18" cy="18" r="16" fill="#26B99D" opacity="0.15" />
-            <path
-              d="M18 6C14.5 6 11.5 7.5 9.5 10C7.5 12.5 7 15.5 8 18.5C9 21.5 11.5 23.5 14.5 24.5C17.5 25.5 20.5 25 23 23C25.5 21 27 18 27 14.5C27 9.8 23 6 18 6Z"
-              fill="#26B99D"
-              opacity="0.6"
-            />
-            <path
-              d="M18 10C15.8 10 14 11 12.8 12.8C11.6 14.6 11.3 16.6 12 18.5C12.7 20.4 14.2 21.7 16.2 22.2C18.2 22.7 20 22.2 21.5 21C23 19.8 24 17.8 24 15.5C24 12.5 21.3 10 18 10Z"
-              fill="#26B99D"
-            />
-          </svg>
+          <img src="/logo.png" alt="SIN Logo" width={36} height={36} className="shrink-0" />
           {!collapsed && (
             <div className="flex flex-col leading-none">
               <span className={cn("text-lg font-bold tracking-wider", isDark ? "text-white" : "text-gray-800")}>

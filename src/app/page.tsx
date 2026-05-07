@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Sidebar } from "@/components/sidebar";
 import { ProtocolosPage } from "@/components/protocolos-page";
 import { ImportacoesPage } from "@/components/importacoes-page";
+import { ParametrizacaoPage } from "@/components/parametrizacao-page";
 import { ThemeProvider, useTheme } from "@/lib/theme-context";
 
 function AppContent() {
@@ -18,6 +19,8 @@ function AppContent() {
           <ProtocolosPage />
         ) : activePage === "Importações" ? (
           <ImportacoesPage />
+        ) : activePage === "Parametrização" ? (
+          <ParametrizacaoPage />
         ) : (
           <div className="flex h-full items-center justify-center">
             <p className={`text-lg ${isDark ? "text-gray-400" : "text-gray-500"}`}>{activePage}</p>
