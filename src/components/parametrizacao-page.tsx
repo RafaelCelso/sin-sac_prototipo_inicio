@@ -140,10 +140,55 @@ function CamposTable({ campos }: { campos: CampoRow[] }) {
     campos.map((c) => ({ obrigatorio: c.obrigatorio, visivel: c.visivel }))
   );
 
+  // Helper to find all descendant indices of a given campo
+  const getDescendantIndices = (parentIndex: number): number[] => {
+    const parentCampo = campos[parentIndex];
+    const parentCampoId = parentCampo.campoId;
+    if (!parentCampoId) return [];
+
+    const descendants: number[] = [];
+    const queue = [parentCampoId];
+
+    while (queue.length > 0) {
+      const currentParentId = queue.shift()!;
+      campos.forEach((c, idx) => {
+        if (c.parentId === currentParentId && !descendants.includes(idx)) {
+          descendants.push(idx);
+          if (c.campoId) {
+            queue.push(c.campoId);
+          }
+        }
+      });
+    }
+
+    return descendants;
+  };
+
+  // Check if a campo's parent chain has any disabled (not visible) ancestor
+  const isDisabledByParent = (index: number): boolean => {
+    const campo = campos[index];
+    if (!campo.parentId) return false;
+
+    const parentIndex = campos.findIndex((c) => c.campoId === campo.parentId);
+    if (parentIndex === -1) return false;
+
+    if (!fieldStates[parentIndex].visivel) return true;
+    return isDisabledByParent(parentIndex);
+  };
+
   const updateField = (index: number, key: "obrigatorio" | "visivel", value: boolean) => {
     setFieldStates((prev) => {
       const next = [...prev];
       next[index] = { ...next[index], [key]: value };
+
+      // If disabling visibility, cascade to all descendants
+      if (key === "visivel" && !value) {
+        const descendants = getDescendantIndices(index);
+        descendants.forEach((descIdx) => {
+          next[descIdx] = { ...next[descIdx], visivel: false };
+        });
+      }
+
       return next;
     });
   };
@@ -160,38 +205,44 @@ function CamposTable({ campos }: { campos: CampoRow[] }) {
           </tr>
         </thead>
         <tbody>
-          {campos.map((campo, i) => (
-            <tr key={campo.nome} className={cn("border-b", isDark ? "border-white/5" : "border-gray-100")}>
-              <td className={cn("py-2.5 px-3", isDark ? "text-gray-200" : "text-gray-700")}>
-                <div className="flex items-center gap-1">
-                  {campo.level && campo.level > 0 && (
-                    <span style={{ width: campo.level * 20 }} className="inline-block" />
-                  )}
-                  <span>{campo.nome}</span>
-                  {campo.condition && (
-                    <span className={cn("ml-2 text-xs px-1.5 py-0.5 rounded", isDark ? "bg-white/5 text-gray-400" : "bg-gray-100 text-gray-500")}>
-                      {campo.condition}
-                    </span>
-                  )}
-                </div>
-              </td>
-              <td className="py-2.5 px-3">
-                <span className={cn("text-xs px-2 py-0.5 rounded-full font-medium", isDark ? "bg-white/10 text-gray-300" : "bg-gray-100 text-gray-600")}>
-                  {campo.tipo}
-                </span>
-              </td>
-              <td className="py-2.5 px-3 text-center">
-                <div className="flex justify-center">
-                  <Toggle checked={fieldStates[i].obrigatorio} onChange={(v) => updateField(i, "obrigatorio", v)} />
-                </div>
-              </td>
-              <td className="py-2.5 px-3 text-center">
-                <div className="flex justify-center">
-                  <Toggle checked={fieldStates[i].visivel} onChange={(v) => updateField(i, "visivel", v)} />
-                </div>
-              </td>
-            </tr>
-          ))}
+          {campos.map((campo, i) => {
+            const disabledByParent = isDisabledByParent(i);
+            return (
+              <tr key={campo.nome} className={cn("border-b", isDark ? "border-white/5" : "border-gray-100", disabledByParent && "opacity-50")}>
+                <td className={cn("py-2.5 px-3", isDark ? "text-gray-200" : "text-gray-700")}>
+                  <div className="flex items-center gap-1">
+                    {campo.level && campo.level > 0 && (
+                      <span style={{ width: campo.level * 20 }} className="inline-block" />
+                    )}
+                    <span>{campo.nome}</span>
+                    {campo.condition && (
+                      <span className={cn("ml-2 text-xs px-1.5 py-0.5 rounded", isDark ? "bg-white/5 text-gray-400" : "bg-gray-100 text-gray-500")}>
+                        {campo.condition}
+                      </span>
+                    )}
+                  </div>
+                </td>
+                <td className="py-2.5 px-3">
+                  <span className={cn("text-xs px-2 py-0.5 rounded-full font-medium", isDark ? "bg-white/10 text-gray-300" : "bg-gray-100 text-gray-600")}>
+                    {campo.tipo}
+                  </span>
+                </td>
+                <td className="py-2.5 px-3 text-center">
+                  <div className="flex justify-center">
+                    <Toggle checked={fieldStates[i].obrigatorio} onChange={(v) => updateField(i, "obrigatorio", v)} />
+                  </div>
+                </td>
+                <td className="py-2.5 px-3 text-center">
+                  <div className="flex justify-center">
+                    <Toggle
+                      checked={fieldStates[i].visivel}
+                      onChange={(v) => updateField(i, "visivel", v)}
+                    />
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
@@ -278,7 +329,7 @@ export function ParametrizacaoPage() {
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-8 py-6">
-        <div className="flex flex-col gap-3 max-w-5xl">
+        <div className="flex flex-col gap-3">
           {sections.map((section) => {
             const isExpanded = expandedSections.includes(section.title);
             return (
